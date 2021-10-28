@@ -29,8 +29,6 @@
                 <tr>
                     <th><?= __('Symbol') ?></th>
                     <td><?= h($tradecoin->symbol) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Geckoname') ?></th>
                     <td><?= h($tradecoin->geckoname) ?></td>
                 </tr>
@@ -39,46 +37,30 @@
                     <td><?= h($tradecoin->small_image) ?></td>
                 </tr>
                 <tr>
-                    <th><?= __('Id') ?></th>
-                    <td><?= $this->Number->format($tradecoin->id) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Valorusd') ?></th>
+                    <th> Valor Actual en USD </th>
                     <td><?= $this->Number->format($tradecoin->valorusd) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Inc1h') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc1h) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Inc24h') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc24h) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Inc7d') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc7d) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Inc14d') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc14d) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Inc30d') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc30d) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Inc60d') ?></th>
                     <td><?= $this->Number->format($tradecoin->inc60d) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Max Supply') ?></th>
                     <td><?= $this->Number->format($tradecoin->max_supply) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Total Supply') ?></th>
                     <td><?= $this->Number->format($tradecoin->total_supply) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Circulating Supply') ?></th>
                     <td><?= $this->Number->format($tradecoin->circulating_supply) ?></td>
                 </tr>
@@ -97,8 +79,6 @@
                 <div class="table-responsive">
                     <table>
                         <tr>
-                            <th><?= __('Id') ?></th>
-                            <th><?= __('Tradecoin Id') ?></th>
                             <th><?= __('Tradeaccount Id') ?></th>
                             <th><?= __('AssociatedAccount') ?></th>
                             <th><?= __('Balance') ?></th>
@@ -107,10 +87,9 @@
                         </tr>
                         <?php foreach ($tradecoin->tradeasociados as $tradeasociados) : ?>
                         <tr>
-                            <td><?= h($tradeasociados->id) ?></td>
-                            <td><?= h($tradeasociados->tradecoin_id) ?></td>
-                            <td><?= h($tradeasociados->tradeaccount_id) ?></td>
-                            <td><?= h($tradeasociados->associatedAccount) ?></td>
+                            <td><?= $this->Html->link($tradeasociados->tradeaccount->cuenta, 
+									['controller' => 'Tradeaccounts', 'action' => 'view', $tradeasociados->tradeaccount_id]) ?></td>
+                            <td><?= substr($tradeasociados->associatedAccount,0,9).'...' ?></td>
                             <td><?= h($tradeasociados->balance) ?></td>
                             <td><?= h($tradeasociados->acumusd) ?></td>
                             <td class="actions">

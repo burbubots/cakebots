@@ -316,7 +316,7 @@ class TradeasociadosController extends AppController
     private function curlCaptura($orden, $payload, $decode=true){
 
 		$uri = 'https://free.rpcpool.com';
-		$timeout = (float) 3; // segundos
+		$timeout = (float) 2; // segundos
 		
 		   // init curl options
         $options = [

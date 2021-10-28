@@ -43,7 +43,7 @@ class TradecoinsController extends AppController
     public function view($id = null)
     {
         $tradecoin = $this->Tradecoins->get($id, [
-            'contain' => ['Tradeasociados'],
+            'contain' => ['Tradeasociados','Tradeasociados.Tradeaccounts',],
         ]);
 
         $this->set(compact('tradecoin'));
