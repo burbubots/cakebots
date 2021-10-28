@@ -14,8 +14,6 @@ use Cake\ORM\Entity;
  * @property string|null $symbol
  * @property string|null $geckoname
  * @property float $valorusd
- * @property float $balance
- * @property float $acumusd
  * @property float $inc1h
  * @property float $inc24h
  * @property float $inc7d
@@ -30,7 +28,6 @@ use Cake\ORM\Entity;
  * @property int $getticker
  *
  * @property \App\Model\Entity\Tradeasociado[] $tradeasociados
- * @property \App\Model\Entity\Tradepool[] $tradepools
  */
 class Tradecoin extends Entity
 {
@@ -49,8 +46,6 @@ class Tradecoin extends Entity
         'symbol' => true,
         'geckoname' => true,
         'valorusd' => true,
-        'balance' => true,
-        'acumusd' => true,
         'inc1h' => true,
         'inc24h' => true,
         'inc7d' => true,
@@ -64,6 +59,5 @@ class Tradecoin extends Entity
         'small_image' => true,
         'getticker' => true,
         'tradeasociados' => true,
-        'tradepools' => true,
     ];
 }

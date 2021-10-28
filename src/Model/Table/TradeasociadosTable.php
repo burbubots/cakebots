@@ -8,6 +8,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
+
 class TradeasociadosTable extends Table
 {
     /**
@@ -24,15 +25,14 @@ class TradeasociadosTable extends Table
         $this->setDisplayField('tradecoin_id');
         $this->setPrimaryKey('id');
 
+        $this->belongsTo('Tradecoins', [
+            'foreignKey' => 'tradecoin_id',
+            'joinType' => 'INNER',
+        ]);
         $this->belongsTo('Tradeaccounts', [
             'foreignKey' => 'tradeaccount_id',
             'joinType' => 'INNER',
         ]);
-        $this->belongsTo('Tradecoins', [
-            'foreignKey' => 'tradecoin_id',
-            'joinType' => 'INNER',
-        ]); //->setConditions(['tradecoin_id >' => 1]);
-        
     }
 
     /**
@@ -51,7 +51,16 @@ class TradeasociadosTable extends Table
             ->scalar('associatedAccount')
             ->maxLength('associatedAccount', 200)
             ->requirePresence('associatedAccount', 'create')
-            ->notEmptyString('associatedAccount');
+            ->notEmptyString('associatedAccount')
+            ->add('associatedAccount', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
+
+        $validator
+            ->numeric('balance')
+            ->notEmptyString('balance');
+
+        $validator
+            ->numeric('acumusd')
+            ->notEmptyString('acumusd');
 
         return $validator;
     }
@@ -65,8 +74,9 @@ class TradeasociadosTable extends Table
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules->add($rules->existsIn(['tradeaccount_id'], 'Tradeaccounts'), ['errorField' => 'tradeaccount_id']);
-        $rules->add($rules->existsIn(['tradecoin_id'], 'Tradecoins'), ['errorField' => 'tradecoin_id']);
+        $rules->add($rules->isUnique(['associatedAccount']), ['errorField' => 'associatedAccount']);
+        $rules->add($rules->existsIn('tradeaccount_id', 'Tradeaccounts'), ['errorField' => 'tradeaccount_id']);
+        $rules->add($rules->existsIn('tradecoin_id', 'Tradecoins'), ['errorField' => 'tradecoin_id']);
 
         return $rules;
     }

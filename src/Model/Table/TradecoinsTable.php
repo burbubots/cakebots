@@ -25,12 +25,9 @@ class TradecoinsTable extends Table
         $this->setDisplayField('coin');
         $this->setPrimaryKey('id');
 
-//        $this->hasMany('Tradeasociados', [
-        $this->hasOne('Tradeasociados', [
+        $this->hasMany('Tradeasociados', [
             'foreignKey' => 'tradecoin_id',
         ]);
-        
-        
     }
 
     /**
@@ -54,7 +51,8 @@ class TradecoinsTable extends Table
         $validator
             ->scalar('address')
             ->maxLength('address', 200)
-            ->allowEmptyString('address');
+            ->allowEmptyString('address')
+            ->add('address', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('symbol')
@@ -69,14 +67,6 @@ class TradecoinsTable extends Table
         $validator
             ->numeric('valorusd')
             ->notEmptyString('valorusd');
-
-        $validator
-            ->numeric('balance')
-            ->notEmptyString('balance');
-
-        $validator
-            ->numeric('acumusd')
-            ->notEmptyString('acumusd');
 
         $validator
             ->numeric('inc1h')
@@ -127,5 +117,19 @@ class TradecoinsTable extends Table
             ->notEmptyString('getticker');
 
         return $validator;
+    }
+
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules): RulesChecker
+    {
+        $rules->add($rules->isUnique(['address'], ['allowMultipleNulls' => true]), ['errorField' => 'address']);
+
+        return $rules;
     }
 }

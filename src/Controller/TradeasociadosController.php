@@ -10,6 +10,22 @@ class TradeasociadosController extends AppController
 	const HTTP_OK         = 200;
 	const HTTP_NO_CONTENT = 204;
 	
+	
+	public function index($addr=null){
+		if( is_null($addr) ) return $this->redirect(['controller'=>'Tradeaccounts', 'action' => 'index']);
+
+		$cuenta = $this->actualizaActivosDesdeRed($addr, $cargagecko=null);
+		$this->set('cuenta', $cuenta); // debug
+		
+        $this->paginate = [
+            'contain' => ['Tradeaccounts', 'Tradecoins'],
+            'conditions' => ['tradeaccount_id'=>$cuenta->id],
+        ];
+        $tradeasociados = $this->paginate($this->Tradeasociados);
+
+        $this->set(compact('tradeasociados'));
+    }
+	
 	/*************************************************/
 	// Captura los tokens de esta cuenta
 	// cuenta se tiene que dar ya de la DB
@@ -23,22 +39,31 @@ class TradeasociadosController extends AppController
 				'conditions' => [ 'account' => $addr, ], 
 			]);
 		$cuenta = $todas_cuentas->first(); // es null si no la encuentra
-		
+			
+		// añadimos a la cuenta los tradecoins presentes en la DB
+		$cuenta->todoscoins = [];
+		$tcoinsrw = $this->Tradecoins->find('all');
+		foreach( $tcoinsrw as $tcoin ) { array_push($cuenta->todoscoins,$tcoin); }
+
+	
 		if( !is_null($cuenta)){ // existe
 			// info de cuenta
 			$params = [$cuenta->account];
 			$mi_cuenta_info = $this->curlCaptura("getAccountInfo", json_encode($params));  // CURL
 			if( !is_null($mi_cuenta_info)) { // se descargó correctamente
 				$sol = $this->buscaPropiedadEnObjetosDeArray($cuenta->tradeasociados, 'associatedAccount' , $addr);
-				if( is_null($sol) ){ // no hay una cuenta principal para el token WSOL, creamos
-					// primero creamos el coin
-					$wsol = $this->Tradecoins->newEmptyEntity();
-					$wsol->coin = 'SOL';
-					$wsol->symbol = 'SOL';
-					$wsol->address = $addr;
-					$wsol->geckoname = 'solana';
-					$wsol->small_image = 'https://assets.coingecko.com/coins/images/4128/small/Solana.jpg';
-					$this->Tradecoins->save($wsol); // salvamos en base de datos
+				if( is_null($sol) ){ // no hay una cuenta principal para el token SOL, creamos
+					// capturamos el coin que representa a la cuenta principal
+					$wsol = $this->buscaPropiedadEnObjetosDeArray($cuenta->todoscoins, 'address' , 'cuenta_principal_solana');
+					if(is_null($wsol) ) { // puede que no exista aún, no se da precargada por github
+						$wsol = $this->Tradecoins->newEmptyEntity();
+						$wsol->coin = 'SOL';
+						$wsol->symbol = 'SOL';
+						$wsol->address = 'cuenta_principal_solana';
+						$wsol->geckoname = 'solana';
+						$wsol->small_image = 'https://assets.coingecko.com/coins/images/4128/small/Solana.jpg';
+						$this->Tradecoins->save($wsol); // salvamos en base de datos
+					}
 					// ahora creamos el asociado
 					$sol = $this->Tradeasociados->newEmptyEntity();
 					$sol->tradeaccount_id = $cuenta->id;
@@ -50,9 +75,8 @@ class TradeasociadosController extends AppController
 				}
 				if( isset($mi_cuenta_info->result->value->lamports) ){
 					$solanas = round( floatval($mi_cuenta_info->result->value->lamports)/pow(10,9),9); // salvamos solanas
-					$this->loadModel('Tradecoins');
-					$sol->tradecoin->balance = $solanas;
-					$this->Tradecoins->save($sol->tradecoin); // salvamos solanas en cuenta principal
+					$sol->balance = $solanas;
+					$this->Tradeasociados->save($sol); // salvamos solanas en cuenta principal
 				}
 			}
 			
@@ -72,45 +96,59 @@ class TradeasociadosController extends AppController
 					$mint_red = $this->procesaTokenMint($tred);
 					$mitoken = $this->buscaPropiedadEnObjetosDeArray($cuenta->tradeasociados, 'associatedAccount' , $address);
 
-					// creamos si no existe
+					// creamos el token asociado,si no existe
 					if( is_null($mitoken) && !is_null($mint_red) ){
 						$tradecoinsrw = $this->Tradecoins->find('all', [ 'conditions' => ['address'=>$mint_red] ]);
 						$tradecoin = $tradecoinsrw->first(); // es null si no la encuentra
 						
-						if( is_null($tradecoin) ){
-							$this->Flash->success('Crear '.$address.' Mint: '.$mint_red);
+						if( is_null($tradecoin) ){ // este token que está registrado en la red, no lo tenemos en la DB, lo creamos
+							// $this->Flash->success('Crear '.$address.' Mint: '.$mint_red); // debug
 							$tradecoin = $this->Tradecoins->newEmptyEntity();
 							$tradecoin->coin = 'Desconocido';
 							$tradecoin->symbol = 'NO_SE';
 							$tradecoin->address = $mint_red;
 							$this->Tradecoins->save($tradecoin);
 						}
-						
+						// Ahora creamos el token asociado en la tabla Tradeasociados, conectado a su mint-address (tabla Tradecoins)
 						$mitoken = $this->Tradeasociados->newEmptyEntity();
-						$mitoken->associatedAccount = $address;
-						$mitoken->tradecoin_id = $tradecoin->id;
-						$mitoken->tradeaccount_id = $cuenta->id;
-						$this->Tradeasociados->save($mitoken);
+						$mitoken->associatedAccount = $address; // el addrees de asociado descargado de blockchain
+						$mitoken->tradecoin_id = $tradecoin->id;  // puntero al coin
+						$mitoken->tradeaccount_id = $cuenta->id;  // puntero a la cuenta
+						$this->Tradeasociados->save($mitoken);  // salvando a la DB
 						
-						$mitoken->tradecoin = $tradecoin;
+						$mitoken->tradecoin = $tradecoin; // conectamos a pelo el objeto
 						
-						array_push($cuenta->tradeasociados,$mitoken);
+						array_push($cuenta->tradeasociados,$mitoken); // añadimos al array
 					}
 					
 					if(!is_null($mint_red) ){ //hay datos, actualizamos el token
 						// chequeo previo de mintados
 						if( $mint_red != $mitoken->tradecoin->address ){ 
-							$this->Flash->error( 'Mintados no coinciden !! '.$mint_red);
+							$this->Flash->error( 'Mintados no coinciden !! '.$mint_red); // este es un error demasiado gordo, anulamos
 							return null; 
 						}
 						// Identificación del token con una lista de conocidos
-						
+						if( !isset($cuenta->conocidos) ){ // cargamos si no está definido
+							$cuenta->conocidos = $this->cargatokensConocidos()->tokens;
+							//$cuenta->damedatos = []; // para debug
+						}
+						if($mitoken->tradecoin->coin == 'Desconocido'){ // no está identificado
+							// buscamos el address del mintado entre los conocidos, para identificar el token
+							$busco = $this->buscaPropiedadEnObjetosDeArray($cuenta->conocidos, 'address' , $mitoken->tradecoin->address);
+							if( !is_null($busco) ) { // tenemos datos, es conocido
+//								array_push($cuenta->damedatos, ['name'=>$busco->name ]); // para debug
+								$mitoken->tradecoin->coin = $busco->name;
+								$mitoken->tradecoin->symbol = $busco->symbol;
+								$mitoken->tradecoin->small_image = $busco->logoURI;
+								$this->Tradecoins->save($mitoken->tradecoin); // guardamos en DB, tabla Tradecoins
+							}
+						}
 						
 						// balance 
 						$nuevo_balance = $this->procesaTokenBalance($tred);
-						if($mitoken->tradecoin->balance != $nuevo_balance){
-							$mitoken->tradecoin->balance = $nuevo_balance;
-							$this->Tradecoins->save($mitoken->tradecoin);
+						if($mitoken->balance != $nuevo_balance){
+							$mitoken->balance = $nuevo_balance;
+							$this->Tradeasociados->save($mitoken);
 						}
 					}else{
 						$this->Flash->error('No hay datos del token');
@@ -118,8 +156,6 @@ class TradeasociadosController extends AppController
 					}
 					$contador++;
 				}
-				//$this->set('tokensred', $tokensred->result->value[0]);
-				//$this->set('tokensred_account', $tokensred->result->value[0]->account->data->parsed->info->tokenAmount);
 			}
 			
 			// actualizando valores USD si así se determina en la configuración
@@ -211,18 +247,11 @@ class TradeasociadosController extends AppController
 		return json_decode($file);
 	}
 
-    public function index(){
-        $this->paginate = [
-            'contain' => ['Tradeaccounts', 'Tradecoins'],
-        ];
-        $tradeasociados = $this->paginate($this->Tradeasociados);
 
-        $this->set(compact('tradeasociados'));
-    }
 
     public function view($id = null){
         $tradeasociado = $this->Tradeasociados->get($id, [
-            'contain' => ['Tradeaccounts', 'Tradecoins', 'Tradeoperadores','Tradeoperadores.Tradetransactions',],
+            'contain' => ['Tradeaccounts', 'Tradecoins',],
         ]);
 
         $this->set(compact('tradeasociado'));

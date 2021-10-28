@@ -9,12 +9,14 @@ use Cake\ORM\Entity;
  * Tradeasociado Entity
  *
  * @property int $id
+ * @property int $tradecoin_id
  * @property int $tradeaccount_id
  * @property string $associatedAccount
- * @property int $tradecoin_id
+ * @property float $balance
+ * @property float $acumusd
  *
- * @property \App\Model\Entity\Tradeaccount $tradeaccount
  * @property \App\Model\Entity\Tradecoin $tradecoin
+ * @property \App\Model\Entity\Tradeaccount $tradeaccount
  */
 class Tradeasociado extends Entity
 {
@@ -28,10 +30,12 @@ class Tradeasociado extends Entity
      * @var array
      */
     protected $_accessible = [
+        'tradecoin_id' => true,
         'tradeaccount_id' => true,
         'associatedAccount' => true,
-        'tradecoin_id' => true,
-        'tradeaccount' => true,
+        'balance' => true,
+        'acumusd' => true,
         'tradecoin' => true,
+        'tradeaccount' => true,
     ];
 }

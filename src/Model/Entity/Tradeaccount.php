@@ -15,7 +15,6 @@ use Cake\ORM\Entity;
  * @property string|null $notas
  *
  * @property \App\Model\Entity\Tradeasociado[] $tradeasociados
- * @property \App\Model\Entity\Tradetransaction[] $tradetransactions
  */
 class Tradeaccount extends Entity
 {
@@ -34,6 +33,5 @@ class Tradeaccount extends Entity
         'net' => true,
         'notas' => true,
         'tradeasociados' => true,
-        'tradetransactions' => true,
     ];
 }

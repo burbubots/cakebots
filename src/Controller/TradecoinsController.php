@@ -17,18 +17,21 @@ class TradecoinsController extends AppController
 		$asoc_ctrl = new TradeasociadosController;  // creamos el controlador
 		$cuenta = $asoc_ctrl->actualizaActivosDesdeRed($addr,true);
 		
+		$this->set('cuenta', $cuenta);
+		
         $this->paginate = [ 
             'contain' => ['Tradeasociados','Tradeasociados.Tradeaccounts',],
-            'conditions' =>['Tradeasociados.tradeaccount_id'=>$cuenta->id], 
+            //'conditions' => [ 'tradeaccount_id'=>1],
         ];
         $tradecoins = $this->paginate($this->Tradecoins);
         
-        foreach($tradecoins as $coin){
-			if($coin->getticker == 1){
-				$acum = round($coin->balance*$coin->valorusd,2);
-				if($coin->acumusd != $acum){
-					$coin->acumusd = $acum;
-					$this->Tradecoins->save($coin);
+        foreach($tradecoins->items as $coin){
+			foreach($coin->tradeasociados as $assoc){
+				$this->Flash->success('jolas');
+//				if( $assoc->tradeaccount_id != $cuenta->id) {
+				if( $assoc->tradeaccount_id != 2) {
+					unset($assoc);
+					
 				}
 			}
 		}
