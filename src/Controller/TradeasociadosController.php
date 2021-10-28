@@ -30,6 +30,24 @@ class TradeasociadosController extends AppController
 			$mi_cuenta_info = $this->curlCaptura("getAccountInfo", json_encode($params));  // CURL
 			if( !is_null($mi_cuenta_info)) { // se descargó correctamente
 				$sol = $this->buscaPropiedadEnObjetosDeArray($cuenta->tradeasociados, 'associatedAccount' , $addr);
+				if( is_null($sol) ){ // no hay una cuenta principal para el token WSOL, creamos
+					// primero creamos el coin
+					$wsol = $this->Tradecoins->newEmptyEntity();
+					$wsol->coin = 'SOL';
+					$wsol->symbol = 'SOL';
+					$wsol->address = $addr;
+					$wsol->geckoname = 'solana';
+					$wsol->small_image = 'https://assets.coingecko.com/coins/images/4128/small/Solana.jpg';
+					$this->Tradecoins->save($wsol); // salvamos en base de datos
+					// ahora creamos el asociado
+					$sol = $this->Tradeasociados->newEmptyEntity();
+					$sol->tradeaccount_id = $cuenta->id;
+					$sol->tradecoin_id = $wsol->id;
+					$sol->associatedAccount = $addr;
+					$this->Tradeasociados->save($sol); // salvamos en DB
+					$sol->tradecoin = $wsol;
+					array_push($cuenta->tradeasociados, $sol);
+				}
 				if( isset($mi_cuenta_info->result->value->lamports) ){
 					$solanas = round( floatval($mi_cuenta_info->result->value->lamports)/pow(10,9),9); // salvamos solanas
 					$this->loadModel('Tradecoins');
@@ -45,7 +63,7 @@ class TradeasociadosController extends AppController
 				array('encoding' => 'jsonParsed', 'commitment' => 'processed'), 
 			];
 			$tokensred = $this->curlCaptura("getTokenAccountsByOwner", json_encode($params)); //CURL
-			if( !is_null($tokensred) ){
+			if( !is_null($tokensred) ){ // no ha habido problema con la captura en https://free.rpcpool.com
 				$contador = 0;
 				foreach($tokensred->result->value as $tred){  // recorremos los tokens de red
 					$address = $tred->pubkey;
@@ -71,8 +89,9 @@ class TradeasociadosController extends AppController
 						$mitoken = $this->Tradeasociados->newEmptyEntity();
 						$mitoken->associatedAccount = $address;
 						$mitoken->tradecoin_id = $tradecoin->id;
-						$mitoken->tradeaccount_id = $tradecoin->id;
+						$mitoken->tradeaccount_id = $cuenta->id;
 						$this->Tradeasociados->save($mitoken);
+						
 						$mitoken->tradecoin = $tradecoin;
 						
 						array_push($cuenta->tradeasociados,$mitoken);
@@ -84,6 +103,9 @@ class TradeasociadosController extends AppController
 							$this->Flash->error( 'Mintados no coinciden !! '.$mint_red);
 							return null; 
 						}
+						// Identificación del token con una lista de conocidos
+						
+						
 						// balance 
 						$nuevo_balance = $this->procesaTokenBalance($tred);
 						if($mitoken->tradecoin->balance != $nuevo_balance){
@@ -109,15 +131,13 @@ class TradeasociadosController extends AppController
 				}
 			}
 			
-			
 			//$this->set('infocuenta', $mi_cuenta_info->result);
 			//$this->set('cuenta', $cuenta);
 		} // addr existe, existe $cuenta
 		
 		return $cuenta;
 	}
-	
-	
+		
 	/**************************************************************************/
 	// Actualiza datos de un asociado con los datos de la API de Coingecko
 	private function actualizaConCoingecko($asoc){
@@ -158,7 +178,6 @@ class TradeasociadosController extends AppController
 		return null;
 	}
 
-
 	/**************************************************************************/
 	// Procesa los datos crudos, para devolver el token de forma más usable
 	private function procesaTokenBalance($tred){
@@ -168,8 +187,6 @@ class TradeasociadosController extends AppController
 		}
 		return 0;
 	}
-
-
 
 	/**************************************************************************/
 	// Carga y devuelve los tokens conocidos de una lista enorme
@@ -271,13 +288,6 @@ class TradeasociadosController extends AppController
 
 		$uri = 'https://free.rpcpool.com';
 		$timeout = (float) 3; // segundos
-		$postfields = [
-			//"jsonrpc" => "2.0",
-			//"id" => 1,
-			"method" => $orden,
-			"params" => "AhrTzV97vUxny1nmaTEtXuPj5cReGBmDkJeefhAjy3Hq",
-		];
-		
 		
 		   // init curl options
         $options = [
@@ -285,27 +295,17 @@ class TradeasociadosController extends AppController
                 CURLOPT_RETURNTRANSFER    => true,
                 CURLOPT_URL               => $uri,
                 CURLOPT_POST              => true,
-                //CURLOPT_POSTFIELDS        => $postfields,
                 CURLOPT_FOLLOWLOCATION    => false,
                 CURLOPT_TIMEOUT_MS        => (int)($timeout * 1000),
             ];
 
         $curl = curl_init();
-//        curl_setopt($curl, CURLOPT_POSTFIELDS, $postfields );
 		$cadena = "{\"jsonrpc\":\"2.0\",".
 				"\"id\":\"1\",".
 				"\"method\":\"".$orden."\",".
-//				"\"params\":[\"AhrTzV97vUxny1nmaTEtXuPj5cReGBmDkJeefhAjy3Hq\"]}";
 				"\"params\":".$payload."}";
         curl_setopt($curl, CURLOPT_POSTFIELDS, $cadena );
 				
-		
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, "\"jsonrpc\":\"2.0\"" );
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, "\"id\":\"1\"" );
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, "\"method\":\"".$orden."\"");
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, "\"params\":[\"AhrTzV97vUxny1nmaTEtXuPj5cReGBmDkJeefhAjy3Hq\"]");
-        
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, "{'jsonrpc':'2.0','id':1,'method':'".$orden."','params':[".'"AhrTzV97vUxny1nmaTEtXuPj5cReGBmDkJeefhAjy3Hq"'."]}");
         curl_setopt_array($curl, $options);
         
         $response  = curl_exec($curl);

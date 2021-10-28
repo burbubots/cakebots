@@ -14,13 +14,12 @@ class TradecoinsController extends AppController
 		
 	
 		// actualizamos
-		$asoc_ctrl = new TradeasociadosController;
+		$asoc_ctrl = new TradeasociadosController;  // creamos el controlador
 		$cuenta = $asoc_ctrl->actualizaActivosDesdeRed($addr,true);
 		
         $this->paginate = [ 
             'contain' => ['Tradeasociados','Tradeasociados.Tradeaccounts',],
-            'conditions' =>[ 'Tradecoins.id >'=> 1, 'Tradeasociados.tradeaccount_id'=>$cuenta->id], //'tradeaccount_id'=>$cuenta->id ],
-            'order' => ['Tradecoins.acumusd desc', 'Tradecoins.balance desc'],
+            'conditions' =>['Tradeasociados.tradeaccount_id'=>$cuenta->id], 
         ];
         $tradecoins = $this->paginate($this->Tradecoins);
         
