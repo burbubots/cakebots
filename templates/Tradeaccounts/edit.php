@@ -23,6 +23,7 @@
                 <legend><?= __('Edit Tradeaccount') ?></legend>
                 <?php
                     echo $this->Form->control('account');
+                    echo $this->Form->control('cuenta');
                     echo $this->Form->control('net');
                     echo $this->Form->control('notas');
                 ?>

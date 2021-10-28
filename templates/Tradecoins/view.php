@@ -23,13 +23,9 @@
                     <td><?= h($tradecoin->coin) ?></td>
                 </tr>
                 <tr>
-                    <th><?= __('Mint') ?></th>
+                    <th><?= __('Address') ?></th>
                     <td><?= h($tradecoin->address) ?></td>
                 </tr>
-               <tr>
-                    <th><?= __('Associated') ?></th>
-                    <td><?= h($tradecoin->tradeasociado->associatedAccount) ?></td>
-                </tr>                
                 <tr>
                     <th><?= __('Symbol') ?></th>
                     <td><?= h($tradecoin->symbol) ?></td>
@@ -49,14 +45,6 @@
                 <tr>
                     <th><?= __('Valorusd') ?></th>
                     <td><?= $this->Number->format($tradecoin->valorusd) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Balance') ?></th>
-                    <td><?= $this->Number->format($tradecoin->balance) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Acumusd') ?></th>
-                    <td><?= $this->Number->format($tradecoin->acumusd) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Inc1h') ?></th>
@@ -95,34 +83,40 @@
                     <td><?= $this->Number->format($tradecoin->circulating_supply) ?></td>
                 </tr>
                 <tr>
+                    <th><?= __('Market Cap') ?></th>
+                    <td><?= $this->Number->format($tradecoin->market_cap) ?></td>
+                </tr>
+                <tr>
                     <th><?= __('Getticker') ?></th>
                     <td><?= $this->Number->format($tradecoin->getticker) ?></td>
                 </tr>
             </table>
             <div class="related">
-                <h4><?= __('Related Trademueves') ?></h4>
-                <?php if (!empty($tradecoin->trademueves)) : ?>
+                <h4><?= __('Related Tradeasociados') ?></h4>
+                <?php if (!empty($tradecoin->tradeasociados)) : ?>
                 <div class="table-responsive">
                     <table>
                         <tr>
                             <th><?= __('Id') ?></th>
                             <th><?= __('Tradecoin Id') ?></th>
-                            <th><?= __('Tradeop Id') ?></th>
-                            <th><?= __('Cantidad') ?></th>
-                            <th><?= __('Valorusd') ?></th>
+                            <th><?= __('Tradeaccount Id') ?></th>
+                            <th><?= __('AssociatedAccount') ?></th>
+                            <th><?= __('Balance') ?></th>
+                            <th><?= __('Acumusd') ?></th>
                             <th class="actions"><?= __('Actions') ?></th>
                         </tr>
-                        <?php foreach ($tradecoin->trademueves as $trademueves) : ?>
+                        <?php foreach ($tradecoin->tradeasociados as $tradeasociados) : ?>
                         <tr>
-                            <td><?= h($trademueves->id) ?></td>
-                            <td><?= h($trademueves->tradecoin_id) ?></td>
-                            <td><?= h($trademueves->tradeop_id) ?></td>
-                            <td><?= h($trademueves->cantidad) ?></td>
-                            <td><?= h($trademueves->valorusd) ?></td>
+                            <td><?= h($tradeasociados->id) ?></td>
+                            <td><?= h($tradeasociados->tradecoin_id) ?></td>
+                            <td><?= h($tradeasociados->tradeaccount_id) ?></td>
+                            <td><?= h($tradeasociados->associatedAccount) ?></td>
+                            <td><?= h($tradeasociados->balance) ?></td>
+                            <td><?= h($tradeasociados->acumusd) ?></td>
                             <td class="actions">
-                                <?= $this->Html->link(__('View'), ['controller' => 'Trademueves', 'action' => 'view', $trademueves->id]) ?>
-                                <?= $this->Html->link(__('Edit'), ['controller' => 'Trademueves', 'action' => 'edit', $trademueves->id]) ?>
-                                <?= $this->Form->postLink(__('Delete'), ['controller' => 'Trademueves', 'action' => 'delete', $trademueves->id], ['confirm' => __('Are you sure you want to delete # {0}?', $trademueves->id)]) ?>
+                                <?= $this->Html->link(__('View'), ['controller' => 'Tradeasociados', 'action' => 'view', $tradeasociados->id]) ?>
+                                <?= $this->Html->link(__('Edit'), ['controller' => 'Tradeasociados', 'action' => 'edit', $tradeasociados->id]) ?>
+                                <?= $this->Form->postLink(__('Delete'), ['controller' => 'Tradeasociados', 'action' => 'delete', $tradeasociados->id], ['confirm' => __('Are you sure you want to delete # {0}?', $tradeasociados->id)]) ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

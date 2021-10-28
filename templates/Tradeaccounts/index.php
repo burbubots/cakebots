@@ -12,6 +12,7 @@
             <thead>
                 <tr>
                     <th><?= $this->Paginator->sort('id') ?></th>
+                    <th>Nombre Cuenta</th>
                     <th><?= $this->Paginator->sort('account') ?></th>
                     <th>Coins</th>
                     <th><?= $this->Paginator->sort('net') ?></th>
@@ -22,8 +23,9 @@
                 <?php foreach ($tradeaccounts as $tradeaccount): ?>
                 <tr>
                     <td><?= $this->Number->format($tradeaccount->id) ?></td>
-                    <td><?= h($tradeaccount->account) ?></td>
-                    <td> <?= $this->Html->link('Ver Coins', ['controller'=>'Tradecoins', 'action' => 'index', $tradeaccount->account]) ?></td>
+                    <td><?=  $tradeaccount->cuenta ?></td>
+                    <td><?= substr($tradeaccount->account,0,9) ?></td>
+                    <td> <?= $this->Html->link('Ver Coins', ['controller'=>'Tradeasociados', 'action' => 'index', $tradeaccount->account]) ?></td>
                     <td><?= h($tradeaccount->net) ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $tradeaccount->id]) ?>

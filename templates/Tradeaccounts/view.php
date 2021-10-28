@@ -16,11 +16,15 @@
     </aside>
     <div class="column-responsive column-80">
         <div class="tradeaccounts view content">
-            <h3><?= h($tradeaccount->account) ?></h3>
+            <h3><?= h($tradeaccount->cuenta) ?></h3>
             <table>
                 <tr>
                     <th><?= __('Account') ?></th>
                     <td><?= h($tradeaccount->account) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Cuenta') ?></th>
+                    <td><?= h($tradeaccount->cuenta) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Net') ?></th>
@@ -44,48 +48,25 @@
                     <table>
                         <tr>
                             <th><?= __('Id') ?></th>
+                            <th><?= __('Tradecoin Id') ?></th>
                             <th><?= __('Tradeaccount Id') ?></th>
                             <th><?= __('AssociatedAccount') ?></th>
-                            <th><?= __('Tradecoin Id') ?></th>
+                            <th><?= __('Balance') ?></th>
+                            <th><?= __('Acumusd') ?></th>
                             <th class="actions"><?= __('Actions') ?></th>
                         </tr>
                         <?php foreach ($tradeaccount->tradeasociados as $tradeasociados) : ?>
                         <tr>
                             <td><?= h($tradeasociados->id) ?></td>
+                            <td><?= h($tradeasociados->tradecoin_id) ?></td>
                             <td><?= h($tradeasociados->tradeaccount_id) ?></td>
                             <td><?= h($tradeasociados->associatedAccount) ?></td>
-                            <td><?= h($tradeasociados->tradecoin_id) ?></td>
+                            <td><?= h($tradeasociados->balance) ?></td>
+                            <td><?= h($tradeasociados->acumusd) ?></td>
                             <td class="actions">
                                 <?= $this->Html->link(__('View'), ['controller' => 'Tradeasociados', 'action' => 'view', $tradeasociados->id]) ?>
                                 <?= $this->Html->link(__('Edit'), ['controller' => 'Tradeasociados', 'action' => 'edit', $tradeasociados->id]) ?>
                                 <?= $this->Form->postLink(__('Delete'), ['controller' => 'Tradeasociados', 'action' => 'delete', $tradeasociados->id], ['confirm' => __('Are you sure you want to delete # {0}?', $tradeasociados->id)]) ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
-                <?php endif; ?>
-            </div>
-            <div class="related">
-                <h4><?= __('Related Tradetransactions') ?></h4>
-                <?php if (!empty($tradeaccount->tradetransactions)) : ?>
-                <div class="table-responsive">
-                    <table>
-                        <tr>
-                            <th><?= __('Id') ?></th>
-                            <th><?= __('Tradeaccount Id') ?></th>
-                            <th><?= __('Hash') ?></th>
-                            <th class="actions"><?= __('Actions') ?></th>
-                        </tr>
-                        <?php foreach ($tradeaccount->tradetransactions as $tradetransactions) : ?>
-                        <tr>
-                            <td><?= h($tradetransactions->id) ?></td>
-                            <td><?= h($tradetransactions->tradeaccount_id) ?></td>
-                            <td><?= h($tradetransactions->hash) ?></td>
-                            <td class="actions">
-                                <?= $this->Html->link(__('View'), ['controller' => 'Tradetransactions', 'action' => 'view', $tradetransactions->id]) ?>
-                                <?= $this->Html->link(__('Edit'), ['controller' => 'Tradetransactions', 'action' => 'edit', $tradetransactions->id]) ?>
-                                <?= $this->Form->postLink(__('Delete'), ['controller' => 'Tradetransactions', 'action' => 'delete', $tradetransactions->id], ['confirm' => __('Are you sure you want to delete # {0}?', $tradetransactions->id)]) ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

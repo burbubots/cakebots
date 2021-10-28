@@ -18,11 +18,10 @@
                 <legend><?= __('Add Tradecoin') ?></legend>
                 <?php
                     echo $this->Form->control('coin');
+                    echo $this->Form->control('address');
                     echo $this->Form->control('symbol');
                     echo $this->Form->control('geckoname');
                     echo $this->Form->control('valorusd');
-                    echo $this->Form->control('balance');
-                    echo $this->Form->control('acumusd');
                     echo $this->Form->control('inc1h');
                     echo $this->Form->control('inc24h');
                     echo $this->Form->control('inc7d');
@@ -32,6 +31,7 @@
                     echo $this->Form->control('max_supply');
                     echo $this->Form->control('total_supply');
                     echo $this->Form->control('circulating_supply');
+                    echo $this->Form->control('market_cap');
                     echo $this->Form->control('small_image');
                     echo $this->Form->control('getticker');
                 ?>

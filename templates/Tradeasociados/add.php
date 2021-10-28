@@ -2,8 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Tradeasociado $tradeasociado
- * @var \Cake\Collection\CollectionInterface|string[] $tradeaccounts
  * @var \Cake\Collection\CollectionInterface|string[] $tradecoins
+ * @var \Cake\Collection\CollectionInterface|string[] $tradeaccounts
  */
 ?>
 <div class="row">
@@ -19,9 +19,11 @@
             <fieldset>
                 <legend><?= __('Add Tradeasociado') ?></legend>
                 <?php
+                    echo $this->Form->control('tradecoin_id', ['options' => $tradecoins]);
                     echo $this->Form->control('tradeaccount_id', ['options' => $tradeaccounts]);
                     echo $this->Form->control('associatedAccount');
-                    echo $this->Form->control('tradecoin_id', ['options' => $tradecoins]);
+                    echo $this->Form->control('balance');
+                    echo $this->Form->control('acumusd');
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>
