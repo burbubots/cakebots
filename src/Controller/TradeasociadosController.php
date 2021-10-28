@@ -87,9 +87,19 @@ class TradeasociadosController extends AppController
 				array('encoding' => 'jsonParsed', 'commitment' => 'processed'), 
 			];
 			$tokensred = $this->curlCaptura("getTokenAccountsByOwner", json_encode($params)); //CURL
+			/*$this->set('tkred_00',$tokensred->result->value[0]->account->data->parsed->info);
+			$this->set('tkred_01',$tokensred->result->value[1]->account->data->parsed->info);
+			$this->set('tkred_02',$tokensred->result->value[2]->account->data->parsed->info);
+			$this->set('tkred_03',$tokensred->result->value[3]->account->data->parsed->info);
+			$this->set('tkred_04',$tokensred->result->value[4]->account->data->parsed->info);
+			$this->set('tkred_05',$tokensred->result->value[5]->account->data->parsed->info);*/
 			if( !is_null($tokensred) ){ // no ha habido problema con la captura en https://free.rpcpool.com
 				$contador = 0;
 				foreach($tokensred->result->value as $tred){  // recorremos los tokens de red
+					if( isset($tred->account->data->parsed->info->delegate) ){ // es token delegado
+						$this->Flash->success(json_encode($tred->account->data->parsed->info) );
+						
+					}
 					$address = $tred->pubkey;
 					//$this->Flash->success('Busco: '.$address);
 					
@@ -98,8 +108,10 @@ class TradeasociadosController extends AppController
 
 					// creamos el token asociado,si no existe
 					if( is_null($mitoken) && !is_null($mint_red) ){
-						$tradecoinsrw = $this->Tradecoins->find('all', [ 'conditions' => ['address'=>$mint_red] ]);
-						$tradecoin = $tradecoinsrw->first(); // es null si no la encuentra
+						
+						//$tradecoinsrw = $this->Tradecoins->find('all', [ 'conditions' => ['address'=>$mint_red] ]);
+						//$tradecoin = $tradecoinsrw->first(); // es null si no la encuentra
+						$tradecoin = $this->buscaPropiedadEnObjetosDeArray($cuenta->todoscoins, 'address', $mint_red);
 						
 						if( is_null($tradecoin) ){ // este token que está registrado en la red, no lo tenemos en la DB, lo creamos
 							// $this->Flash->success('Crear '.$address.' Mint: '.$mint_red); // debug
@@ -108,6 +120,7 @@ class TradeasociadosController extends AppController
 							$tradecoin->symbol = 'NO_SE';
 							$tradecoin->address = $mint_red;
 							$this->Tradecoins->save($tradecoin);
+							array_push($cuenta->todoscoins, $tradecoin);
 						}
 						// Ahora creamos el token asociado en la tabla Tradeasociados, conectado a su mint-address (tabla Tradecoins)
 						$mitoken = $this->Tradeasociados->newEmptyEntity();
