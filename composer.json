@@ -1,7 +1,7 @@
 {
-    "name": "cakephp/app",
-    "description": "CakePHP skeleton app",
-    "homepage": "https://cakephp.org",
+    "name": "burbubots/cakebots",
+    "description": "CakePHP Analysis of blockchains",
+    "homepage": "https://github.com/burbubots/cakebots.git",
     "type": "project",
     "license": "MIT",
     "require": {
