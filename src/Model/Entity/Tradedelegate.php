@@ -6,20 +6,18 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Tradeasociado Entity
+ * Tradedelegate Entity
  *
  * @property int $id
- * @property int $tradecoin_id
+ * @property string $delegate
  * @property int $tradeaccount_id
- * @property string $associatedAccount
- * @property float $balance
- * @property float $acumusd
- * @property string|null $delegate
+ * @property int $tradeasociado_id
+ * @property float $cantidad
  *
- * @property \App\Model\Entity\Tradecoin $tradecoin
  * @property \App\Model\Entity\Tradeaccount $tradeaccount
+ * @property \App\Model\Entity\Tradeasociado $tradeasociado
  */
-class Tradeasociado extends Entity
+class Tradedelegate extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -31,13 +29,11 @@ class Tradeasociado extends Entity
      * @var array
      */
     protected $_accessible = [
-        'tradecoin_id' => true,
-        'tradeaccount_id' => true,
-        'associatedAccount' => true,
-        'balance' => true,
-        'acumusd' => true,
         'delegate' => true,
-        'tradecoin' => true,
+        'tradeaccount_id' => true,
+        'tradeasociado_id' => true,
+        'cantidad' => true,
         'tradeaccount' => true,
+        'tradeasociado' => true,
     ];
 }

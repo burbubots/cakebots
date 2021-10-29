@@ -21,7 +21,7 @@
                     <th>Icon</th>
                     <th>Coin <br />Symbol<br />Cap.($)</th>
                     <th>gecko<br />USD</th>
-                    <th><?= $this->Paginator->sort('balance') ?></th>
+                    <th><?= $this->Paginator->sort('balance',['label' => 'Cant.']).'<br/>[deleg.]' ?></th>
                     <th><?= $this->Paginator->sort('acumusd', ['label' => 'Acum.']) ?></th>
                     <th>Inc.1h<br />Inc.24h<br />Inc.7d</th>
                     <th>Inc.14d<br />Inc.30d<br />Inc.60d</th>
@@ -44,7 +44,23 @@
                         <?= $this->Number->format($assoc->tradecoin->valorusd)." $" ?>
                     </td>
                     <td>
-                        <?= $this->Number->precision($assoc->balance,4)."<br />".$assoc->tradecoin->symbol ?>
+                        <?= $this->Number->precision($assoc->balance,4) ?>
+                        <?php
+							$existe = false; $txt ='';
+							foreach($assoc->tradedelegates as $delegate){
+								if(!$existe){
+									$existe = true;
+									$txt .= '<br />[';
+								}else{
+									$txt.=', ';
+								}
+								$txt .= $this->Html->link($delegate->cantidad, ['controller'=>'Tradedelegates', 'action' => 'view', $delegate->id]);
+							}
+							if($existe){
+								$txt .= ']';
+								echo $txt;
+							}
+                        ?>
                     </td>
                     <td><?= $this->Number->format($assoc->acumusd) ?></td>
                     <td style='text-align: right'>

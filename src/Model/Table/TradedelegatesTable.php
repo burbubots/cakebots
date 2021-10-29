@@ -8,8 +8,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
-
-class TradeasociadosTable extends Table
+class TradedelegatesTable extends Table
 {
     /**
      * Initialize method
@@ -21,20 +20,17 @@ class TradeasociadosTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('tradeasociados');
-        $this->setDisplayField('tradecoin_id');
+        $this->setTable('tradedelegates');
+        $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('Tradecoins', [
-            'foreignKey' => 'tradecoin_id',
-            'joinType' => 'INNER',
-        ]);
         $this->belongsTo('Tradeaccounts', [
             'foreignKey' => 'tradeaccount_id',
             'joinType' => 'INNER',
         ]);
-        $this->hasMany('Tradedelegates', [
+        $this->belongsTo('Tradeasociados', [
             'foreignKey' => 'tradeasociado_id',
+            'joinType' => 'INNER',
         ]);
     }
 
@@ -51,23 +47,14 @@ class TradeasociadosTable extends Table
             ->allowEmptyString('id', null, 'create');
 
         $validator
-            ->scalar('associatedAccount')
-            ->maxLength('associatedAccount', 200)
-            ->requirePresence('associatedAccount', 'create')
-            ->notEmptyString('associatedAccount')
-            ->add('associatedAccount', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
-
-        $validator
-            ->numeric('balance')
-            ->notEmptyString('balance');
-
-        $validator
-            ->numeric('acumusd')
-            ->notEmptyString('acumusd');
-
-        $validator
             ->scalar('delegate')
-            ->allowEmptyString('delegate');
+            ->maxLength('delegate', 100)
+            ->requirePresence('delegate', 'create')
+            ->notEmptyString('delegate');
+
+        $validator
+            ->numeric('cantidad')
+            ->notEmptyString('cantidad');
 
         return $validator;
     }
@@ -81,9 +68,8 @@ class TradeasociadosTable extends Table
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules->add($rules->isUnique(['associatedAccount']), ['errorField' => 'associatedAccount']);
-        $rules->add($rules->existsIn('tradecoin_id', 'Tradecoins'), ['errorField' => 'tradecoin_id']);
         $rules->add($rules->existsIn('tradeaccount_id', 'Tradeaccounts'), ['errorField' => 'tradeaccount_id']);
+        $rules->add($rules->existsIn('tradeasociado_id', 'Tradeasociados'), ['errorField' => 'tradeasociado_id']);
 
         return $rules;
     }
